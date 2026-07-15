@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use App\Models\Country; 
 
 class CountryController extends Controller
 {
@@ -11,38 +11,25 @@ class CountryController extends Controller
     {
         $countryName = $request->input('name', 'Germany'); 
 
-        // UPDATE: Mengubah versi API di URL dari v3.1 menjadi v5 sesuai instruksi error
-        $response = Http::withoutVerifying()
-            ->withHeaders([
-                'User-Agent' => 'GlobalSupplyChainPlatform/1.0'
-            ])
-            ->get("https://restcountries.com/v5/name/{$countryName}");
+        // Tarik data langsung dari database
+        $country = Country::where('name', $countryName)->first();
 
-        $responseData = $response->json();
-
-        // Cek apakah sukses dan data ada
-        if ($response->successful() && !empty($responseData) && isset($responseData[0])) {
-            $data = $responseData[0]; 
-
+        if ($country) {
             return response()->json([
                 'status' => 'success',
-                'source' => 'REST Countries API',
+                'source' => 'Database Internal (Seeder)',
                 'data' => [
-                    // Menambahkan pengaman ganda (?? $data['name']) berjaga-jaga jika struktur JSON v5 sedikit berubah
-                    'negara' => $data['name']['common'] ?? $data['name'] ?? 'Tidak diketahui',
-                    'wilayah' => $data['region'] ?? 'Tidak diketahui',
-                    'mata_uang' => collect($data['currencies'] ?? [])->keys()->first() ?? 'Tidak diketahui',
-                    'bahasa' => collect($data['languages'] ?? [])->values()->implode(', ') ?? 'Tidak diketahui'
+                    'negara' => $country->name,
+                    'kode' => $country->code,
+                    'wilayah' => $country->region,
+                    'mata_uang' => $country->currency
                 ]
             ]);
         }
 
-        // Jika masih gagal, kita keluarkan pesan error ASLI dari API servernya
         return response()->json([
             'status' => 'error',
-            'message' => "Gagal mengambil data untuk negara: {$countryName}.",
-            'debug_http_status' => $response->status(), 
-            'debug_api_response' => $responseData 
-        ], $response->status() === 0 ? 500 : $response->status());
+            'message' => "Data negara {$countryName} tidak ditemukan."
+        ], 404);
     }
 }
