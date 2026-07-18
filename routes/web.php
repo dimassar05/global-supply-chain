@@ -18,3 +18,11 @@ Route::get('/api/countries-data', function () {
     $countries = DB::table('countries')->orderBy('name', 'asc')->get();
     return response()->json($countries);
 });
+
+Route::get('/risk-score', function () {
+    return view('risk-score');
+});
+
+Route::get('/weather', function () {
+    return view('weather');
+});

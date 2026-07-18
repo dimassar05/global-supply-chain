@@ -25,12 +25,12 @@
             overflow-x: hidden; 
         }
         
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR (KHUSUS DARK MODE) --- */
         .sidebar { 
             width: var(--sidebar-width);
             height: 100vh; 
-            background-color: #ffffff;
-            border-right: 1px solid #e2e8f0;
+            background-color: #0f172a; /* Warna gelap modern (Slate 900) */
+            border-right: none; /* Border dihapus karena sudah kontras dengan body */
             position: fixed;
             top: 0;
             left: 0;
@@ -42,11 +42,11 @@
             padding: 30px 25px;
             font-size: 19px;
             font-weight: 800;
-            color: var(--text-main);
+            color: #03fbff; /* Teks brand cerah */
             display: flex;
             align-items: center;
         }
-        .sidebar-brand i { color: var(--primary-color); font-size: 24px; }
+        .sidebar-brand i { color: #03fbff; font-size: 24px; } /* Ikon brand cerah keunguan */
         
         .nav-menu { 
             padding: 0 15px 20px 15px; 
@@ -56,10 +56,10 @@
         }
         .nav-menu::-webkit-scrollbar { width: 5px; }
         .nav-menu::-webkit-scrollbar-track { background: transparent; }
-        .nav-menu::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .nav-menu::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; } /* Scrollbar gelap menyesuaikan sidebar */
         
         .sidebar a { 
-            color: var(--text-muted); 
+            color: #ffffff; 
             text-decoration: none; 
             padding: 12px 15px; 
             margin-bottom: 4px;
@@ -72,15 +72,18 @@
         }
         .sidebar a i { width: 32px; font-size: 18px; transition: color 0.2s; }
         
-        /* Active & Hover States */
-        .sidebar a:hover { background-color: #f1f5f9; color: var(--text-main); }
-        .sidebar a.active { 
-            background-color: #eef2ff; 
-            color: var(--primary-color); 
+        /* Active & Hover States untuk Sidebar Gelap */
+        .sidebar a:hover { 
+            background-color: #1e293b; /* Background hover sedikit lebih cerah dari background utama */
+            color: #ffffff; /* Teks jadi putih saat dihover */
         }
-        .sidebar a.active i { color: var(--primary-color); }
+        .sidebar a.active { 
+            background-color: rgba(79, 70, 229, 0.15); /* Efek transparan warna primary */
+            color: #03fbff; /* Teks cerah warna indigo */
+        }
+        .sidebar a.active i { color: #03fbff; }
 
-        /* --- MAIN WRAPPER & TOPBAR --- */
+        /* --- MAIN WRAPPER & TOPBAR (TETAP LIGHT MODE) --- */
         .main-wrapper { 
             margin-left: var(--sidebar-width); 
             min-height: 100vh;
@@ -114,7 +117,7 @@
 
     <div class="sidebar">
         <div class="sidebar-brand">
-            <i class="fas fa-globe-americas me-2"></i> Global <span style="color: var(--primary-color); margin-left: 5px;">Supply Chain</span>
+            <i class="fas fa-globe-americas me-2"></i> Global <span style="color: #03fbff; margin-left: 5px;">Supply Chain</span>
         </div>
         
         <div class="nav-menu mt-3">
