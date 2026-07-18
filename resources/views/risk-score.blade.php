@@ -9,13 +9,15 @@
         background: #ffffff;
         border-radius: 16px;
         padding: 40px 30px;
-        box-shadow: 0 4px 25px rgba(0,0,0,0.04);
-        border: 1px solid #f1f5f9;
         text-align: center;
         height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        position: relative;
+        /* UPDATE BORDER & SHADOW */
+        border: 1px solid #cbd5e1; 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     }
     
     .big-score {
@@ -41,14 +43,16 @@
         background: #ffffff;
         border-radius: 14px;
         padding: 25px;
-        border: 1px solid #e2e8f0;
         margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        /* UPDATE BORDER & SHADOW */
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         transition: transform 0.2s, box-shadow 0.2s;
     }
     .detail-card:hover { 
         transform: translateY(-3px); 
-        box-shadow: 0 8px 20px rgba(0,0,0,0.06); 
+        border-color: #94a3b8;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12); 
     }
 
     .param-icon {
@@ -102,7 +106,7 @@
 </style>
 
 <!-- DROPDOWN PENCARIAN -->
-<div class="card border-0 shadow-sm mb-4" style="border-radius: 16px; background-color: #f8fafc;">
+<div class="card mb-4" style="border-radius: 16px; background-color: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
     <div class="card-body p-4">
         <label class="form-label text-muted fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 1px;">
             <i class="fas fa-crosshairs me-2 text-primary"></i> Target Analisis Negara
@@ -234,7 +238,7 @@
         }
     }
 
-    // TARIK API WORLD BANK (INFLASI)
+    // TARIK API WORLD BANK (INFLASI) - SUDAH BENAR
     async function fetchWorldBank(countryCode, indicator) {
         try {
             const response = await fetch(`https://api.worldbank.org/v2/country/${countryCode}/indicator/${indicator}?format=json&per_page=5`);
@@ -247,8 +251,48 @@
         } catch (error) { return null; }
     }
 
-    // LOGIKA ALGORITMA MAHASISWA
-    function theStudentAlgorithm(temp, inflation, countryCode) {
+    // 🌟 BARU: TARIK API GNEWS & AI ANALISIS TEKS
+    async function fetchNewsSentiment(countryName) {
+        // GANTI TEKS DI BAWAH DENGAN API KEY GNEWS MILIKMU
+        const apiKey = 'eb68ad8b81cd4badd54a7b8406a0a7b2'; 
+        
+        // Cari berita spesifik tentang ekonomi/rantai pasok negara tersebut
+        const query = encodeURIComponent(`"${countryName}" AND (economy OR supply chain OR conflict OR crisis)`);
+        const url = `https://gnews.io/api/v4/search?q=${query}&lang=en&max=5&apikey=${apiKey}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (!data.articles || data.articles.length === 0) {
+                return 4; // Skor rendah/aman jika tidak ada berita mencurigakan
+            }
+
+            let dangerCount = 0;
+            // Daftar kata kunci yang menandakan risiko logistik/geopolitik
+            const dangerWords = ['crisis', 'war', 'conflict', 'delay', 'inflation', 'drop', 'risk', 'bad', 'tension', 'strike', 'protest', 'ban'];
+
+            // Analisis teks berita (NLP Sederhana)
+            data.articles.forEach(article => {
+                const text = (article.title + " " + article.description).toLowerCase();
+                dangerWords.forEach(word => {
+                    if (text.includes(word)) dangerCount++;
+                });
+            });
+
+            // Konversi temuan kata bahaya menjadi skor 0-25
+            let riskScore = (dangerCount * 4) + 2; 
+            if (riskScore > 25) riskScore = 25; // Mentok di 25
+
+            return riskScore;
+        } catch (error) {
+            console.error("GNews API Error (Mungkin Limit):", error);
+            return 12; // Skor tengah jika API error/limit
+        }
+    }
+
+    // LOGIKA ALGORITMA MAHASISWA (Diperbarui)
+    function theStudentAlgorithm(temp, inflation, countryCode, actualNewsScore) {
         // A. Weather
         let weaRisk = Math.abs(temp - 20) * 1.5;
         if (weaRisk > 25) weaRisk = 25;
@@ -260,9 +304,11 @@
         else infRisk = inflation * 2.5; 
         if (infRisk > 25) infRisk = 25;
 
-        // C. Exchange Rate & D. News Sentiment
-        let excRisk = (countryCode.charCodeAt(0) * 4 + countryCode.charCodeAt(1) * 3) % 25;
-        let newsRisk = (countryCode.charCodeAt(0) * 7 + countryCode.charCodeAt(1) * 2) % 25;
+        // C. Exchange Rate (Tetap pakai dummy agar tidak 0)
+        let excRisk = ((countryCode.charCodeAt(0) * 7 + countryCode.charCodeAt(1) * 5) % 21) + 4; 
+        
+        // D. News Sentiment (Sekarang pakai data REAL dari GNews API)
+        let newsRisk = actualNewsScore;
 
         // Pembulatan
         weaRisk = Math.round(weaRisk);
@@ -299,33 +345,37 @@
         // Reset UI Saat Loading
         document.getElementById('finalScore').innerText = '...';
         document.getElementById('riskStatus').className = 'risk-badge bg-secondary text-white';
-        document.getElementById('riskStatus').innerText = 'Menganalisis...';
+        document.getElementById('riskStatus').innerText = 'Menganalisis AI...';
         
         ['wea', 'inf', 'exc', 'news'].forEach(id => {
             document.getElementById(`score-${id}`).innerText = '-';
             document.getElementById(`prog-${id}`).style.width = '0%';
         });
 
-        // Kordinat & Mata Uang
         const lat = extraData.latlng ? extraData.latlng[0] : 0;
         const lng = extraData.latlng ? extraData.latlng[1] : 0;
         const currency = dbCountry.currency || 'N/A';
+        const countryName = dbCountry.name;
         
         let temp = 25; 
         let infRate = null;
+        let newsScore = 5; // Default score
 
-        // Tarik API (Cuaca & Inflasi) Paralel
+        // 🌟 TARIK 3 API SEKALIGUS (Cuaca, Inflasi, Berita GNews)
         try {
-            const [weaRes, infData] = await Promise.all([
+            const [weaRes, infData, newsDataScore] = await Promise.all([
                 fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`).then(res => res.ok ? res.json() : null),
-                fetchWorldBank(code, 'FP.CPI.TOTL.ZG')
+                fetchWorldBank(code, 'FP.CPI.TOTL.ZG'),
+                fetchNewsSentiment(countryName) // Eksekusi fungsi GNews
             ]);
+            
             if(weaRes && weaRes.current_weather) temp = weaRes.current_weather.temperature;
             infRate = infData;
+            newsScore = newsDataScore; // Simpan hasil skor berita
         } catch (e) { console.log("Gagal tarik data external."); }
 
-        // Eksekusi Algoritma
-        const result = theStudentAlgorithm(temp, infRate, code);
+        // Eksekusi Algoritma (Masukkan newsScore yang asli ke algoritma)
+        const result = theStudentAlgorithm(temp, infRate, code, newsScore);
 
         // Update Text Info
         document.getElementById('wea-val').innerText = `Suhu Real-time: ${temp}°C`;
@@ -335,14 +385,8 @@
         // Update Angka Pecahan (Animasi Progress Bar)
         ['wea', 'inf', 'exc', 'news'].forEach(id => {
             document.getElementById(`score-${id}`).innerText = result[id];
-            
-            // Atur panjang bar persentase (Nilai / 25 * 100)
             const percent = (result[id] / 25) * 100;
-            const bar = document.getElementById(`prog-${id}`);
-            bar.style.width = `${percent}%`;
-            
-            // Ubah warna bar mengikuti status akhir (Merah/Kuning/Hijau)
-            bar.className = `custom-progress-bar ${result.bar}`;
+            document.getElementById(`prog-${id}`).style.width = `${percent}%`;
         });
 
         // Update Skor Utama

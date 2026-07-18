@@ -26,3 +26,7 @@ Route::get('/risk-score', function () {
 Route::get('/weather', function () {
     return view('weather');
 });
+
+Route::get('/currency', function () {
+    return view('currency');
+});

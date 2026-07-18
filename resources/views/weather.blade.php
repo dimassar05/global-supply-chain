@@ -117,16 +117,24 @@
     .popup-stats { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #475569; border-top: 1px solid #e2e8f0; padding-top: 6px; }
 </style>
 
-<div class="row">
-    <div class="col-12">
-        <div class="search-section mb-3">
-            <div class="input-group shadow-sm border rounded-3 bg-white overflow-hidden" style="max-width: 450px;">
-                <span class="input-group-text bg-white border-0 py-2"><i class="fas fa-search text-muted"></i></span>
-                <input type="text" id="mapSearchInput" class="form-control border-0 ps-0 shadow-none py-2" placeholder="Cari kota atau negara..." oninput="triggerSearchFilter()" onclick="showAllLocations()" style="font-size: 14px; font-weight: 600;">
-            </div>
-            <!-- Hasil Dropdown Pencarian -->
-            <ul id="searchResults" class="search-results-dropdown d-none" style="max-width: 450px;"></ul>
+<div class="card mb-4" style="border-radius: 16px; background-color: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+    <div class="card-body p-4 position-relative">
+        <label class="form-label text-muted fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 1px;">
+            <i class="fas fa-search-location me-2 text-primary"></i> Cari Lokasi Cuaca
+        </label>
+        
+        <div class="input-group" style="max-width: 500px;">
+            <span class="input-group-text bg-white border-end-0 border-1 text-muted">
+                <i class="fas fa-search"></i>
+            </span>
+            <!-- ID dan JS event disamakan dengan sistem aslimu -->
+            <input type="text" id="mapSearchInput" class="form-control form-control-lg fw-bold text-dark border-start-0 border-1 ps-0 shadow-none" style="font-size: 16px;" placeholder="Ketik nama kota atau negara..." oninput="triggerSearchFilter()" onclick="showAllLocations()">
         </div>
+        
+        <!-- Hasil Dropdown Pencarian (Tetap Dipertahankan) -->
+        <ul id="searchResults" class="search-results-dropdown d-none shadow" style="max-width: 500px; margin-top: 5px; position: absolute; z-index: 1000; background: white; border-radius: 8px; list-style: none; padding: 0;"></ul>
+    </div>
+</div>
 
         <div class="map-wrapper">
             <!-- 2. AREA PETA LEAFLET -->
@@ -367,12 +375,18 @@
         }, 1600);
     }
 
-        // Tutup dropdown pencarian jika user klik di sembarang tempat (luar kotak search)
-    document.addEventListener('click', (e) => {
-        const searchSection = document.querySelector('.search-section');
-        const dropdown = document.getElementById('searchResults');
-        if (searchSection && !searchSection.contains(e.target) && dropdown) {
-            dropdown.classList.add('d-none');
+    /// FUNGSI UNTUK MENUTUP DROPDOWN SAAT KLIK DI LUAR AREA
+    document.addEventListener('click', function(event) {
+        const searchInput = document.getElementById('mapSearchInput');
+        const searchResults = document.getElementById('searchResults');
+        
+        // Pastikan elemennya ada di halaman
+        if (searchInput && searchResults) {
+            // Cek apakah klik terjadi di LUAR kotak input dan LUAR area dropdown
+            if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+                // Sembunyikan dropdown dengan menambahkan class d-none
+                searchResults.classList.add('d-none');
+            }
         }
     });
 

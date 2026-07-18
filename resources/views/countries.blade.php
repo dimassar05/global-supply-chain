@@ -3,7 +3,7 @@
 @section('page_title', 'Global Country Dashboard')
 
 @section('content')
-<!-- CSS Leaflet saja (TomSelect sudah dihapus) -->
+<!-- CSS Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
@@ -12,9 +12,10 @@
         height: calc(100vh - 300px); 
         min-height: 500px;
         border-radius: 16px; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
         z-index: 1; 
-        border: 1px solid #e2e8f0;
+        /* UPDATE BORDER & SHADOW */
+        border: 1px solid #cbd5e1; 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); 
     }
     
     /* Styling 5 Kotak Metrik Horizontal */
@@ -22,14 +23,19 @@
         background: #ffffff; 
         border-radius: 12px; 
         padding: 15px; 
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02); 
-        border: 1px solid #f1f5f9;
         display: flex; 
         align-items: center; 
         height: 100%;
-        transition: transform 0.2s;
+        /* UPDATE BORDER & SHADOW */
+        border: 1px solid #cbd5e1; 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); 
+        transition: transform 0.2s, box-shadow 0.2s;
     }
-    .metric-box:hover { transform: translateY(-3px); border-color: #e2e8f0; }
+    .metric-box:hover { 
+        transform: translateY(-3px); 
+        border-color: #94a3b8; 
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+    }
     
     .icon-box { 
         width: 42px; height: 42px; 
@@ -46,15 +52,16 @@
     .bg-wea { background: #ffedd5; color: #ea580c; }
 </style>
 
-<!-- DROPDOWN NEGARA (Native Browser, Lebar 450px) -->
-<div class="mb-4" style="width: 420px; max-width: 100%;">
-    <label class="form-label text-muted fw-bold" style="font-size: 12px;">
-        <i class="fas fa-globe-americas me-1"></i> PILIH NEGARA
-    </label>
-    <!-- Kita pakai form-select bawaan Bootstrap agar tampilannya rapi -->
-    <select id="countrySelect" class="form-select form-select-lg shadow-sm fw-bold text-dark border-0" style="font-size: 15px;" onchange="changeCountry()">
-        <option value="">Memuat database...</option>
-    </select>
+<!-- DROPDOWN NEGARA -->
+<div class="card mb-4" style="border-radius: 16px; background-color: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+    <div class="card-body p-4">
+        <label class="form-label text-muted fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 1px;">
+            <i class="fas fa-globe-americas me-2 text-primary"></i> Pilih Negara
+        </label>
+        <select id="countrySelect" class="form-select form-select-lg fw-bold text-dark border-1" style="font-size: 18px; max-width: 500px; box-shadow: none;" onchange="changeCountry()">
+            <option value="">Memuat database...</option>
+        </select>
+    </div>
 </div>
 
 <!-- 5 KOTAK DATA HORIZONTAL -->
