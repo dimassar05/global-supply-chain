@@ -3,21 +3,59 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Port; 
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use App\Models\Port;
+use App\Models\Country;
 
 class PortSeeder extends Seeder
 {
     public function run(): void
     {
-        $ports = [
-            ['name' => 'Port of Hamburg', 'country_id' => 1, 'latitude' => 53.5511, 'longitude' => 9.9937],
-            ['name' => 'Shanghai Port', 'country_id' => 2, 'latitude' => 31.2304, 'longitude' => 121.4737],
-            ['name' => 'Tanjung Priok', 'country_id' => 3, 'latitude' => -6.1104, 'longitude' => 106.8744],
-            ['name' => 'Port of Melbourne', 'country_id' => 4, 'latitude' => -37.8304, 'longitude' => 144.9128],
-        ];
+        $this->command->info('Menghapus data pelabuhan lama yang salah...');
+        
+        // Disable foreign key sementara untuk membersihkan tabel
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Port::truncate(); 
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        foreach ($ports as $port) {
-            Port::create($port);
+        $this->command->info('Mendownload dataset pelabuhan (Versi Lengkap dengan Negara)...');
+        
+        // Menggunakan dataset JSON baru yang memiliki data negara 100% akurat
+        $url = 'https://raw.githubusercontent.com/marchah/sea-ports/master/lib/ports.json';
+        
+        $response = Http::withoutVerifying()->get($url);
+
+        if ($response->successful()) {
+            $portsData = $response->json();
+            $count = 0;
+
+            foreach ($portsData as $port) {
+                $portName = $port['name'] ?? null;
+                $countryName = $port['country'] ?? 'Unknown Country';
+                
+                // Koordinat format API ini: [longitude, latitude]
+                $longitude = $port['coordinates'][0] ?? null;
+                $latitude = $port['coordinates'][1] ?? null;
+
+                if (empty($portName) || $longitude === null || $latitude === null) {
+                    continue; 
+                }
+
+                $country = Country::firstOrCreate(['name' => $countryName]);
+
+                Port::create([
+                    'name' => $portName,
+                    'country_id' => $country->id,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude
+                ]);
+                
+                $count++;
+            }
+            $this->command->info("WOW! Sukses menyimpan {$count} Pelabuhan lengkap dengan nama Negaranya!");
+        } else {
+            $this->command->error("Gagal mendownload data dari URL.");
         }
     }
 }

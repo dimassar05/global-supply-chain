@@ -79,7 +79,7 @@
         }
         .sidebar a.active { 
             background-color: rgba(79, 70, 229, 0.15); /* Efek transparan warna primary */
-            color: #03fbff; /* Teks cerah warna indigo */
+            color: #03fbff; 
         }
         .sidebar a.active i { color: #03fbff; }
 

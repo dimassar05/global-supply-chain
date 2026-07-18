@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\PortController;
 
 // Redirect dari halaman utama ke halaman countries
 Route::get('/', function () {
@@ -30,3 +31,9 @@ Route::get('/weather', function () {
 Route::get('/currency', function () {
     return view('currency');
 });
+
+Route::get('/news', function () {
+    return view('news');
+})->name('news');
+
+Route::get('/port', [PortController::class, 'index'])->name('port');

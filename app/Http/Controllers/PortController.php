@@ -7,18 +7,13 @@ use Illuminate\Http\Request;
 
 class PortController extends Controller
 {
-    public function index(Request $request)
-    {
-        // Fitur pencarian pelabuhan
-        $query = Port::query();
-
-        if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->input('search') . '%');
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $query->get()
-        ]);
+    public function index() {
+        // 1. Mengambil data pelabuhan dan di-JOIN dengan nama negaranya
+        $ports = Port::join('countries', 'ports.country_id', '=', 'countries.id')
+                    ->select('ports.name', 'ports.latitude', 'ports.longitude', 'countries.name as country_name')
+                    ->get();
+                    
+        // 2. Mengirim variabel $ports ke file port.blade.php
+        return view('port', compact('ports'));
     }
 }
