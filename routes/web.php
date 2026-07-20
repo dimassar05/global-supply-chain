@@ -37,3 +37,17 @@ Route::get('/news', function () {
 })->name('news');
 
 Route::get('/port', [PortController::class, 'index'])->name('port');
+
+Route::get('/comparison', function () {
+    // 1. Ambil semua data dari tabel 'countries' (sesuaikan jika nama tabelmu berbeda)
+    $countries = DB::table('countries')->get(); 
+    
+    // 2. Kirim data tersebut ke view 'comparison'
+    return view('comparison', [
+        'countries' => $countries
+    ]);
+});
+
+Route::get('/watchlist', function () {
+    return view('watchlist');
+});

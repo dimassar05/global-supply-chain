@@ -127,8 +127,7 @@
             <a href="/currency" class="{{ request()->is('currency') ? 'active' : '' }}"><i class="fas fa-money-bill-trend-up"></i> Currency</a>
             <a href="/news" class="{{ request()->is('news') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> News</a>
             <a href="/port" class="{{ request()->is('port') ? 'active' : '' }}"><i class="fas fa-anchor"></i> Port</a>
-            <a href="/visualization" class="{{ request()->is('visualization') ? 'active' : '' }}"><i class="fas fa-chart-line"></i> Data Visualization</a>
-            <a href="/comparison" class="{{ request()->is('comparison') ? 'active' : '' }}"><i class="fas fa-code-compare"></i> Country Comparison</a>
+            <a href="/comparison" class="{{ request()->is('comparison') ? 'active' : '' }}"><i class="fas fa-code-compare"></i> Countries Comparison</a>
             <a href="/watchlist" class="{{ request()->is('watchlist') ? 'active' : '' }}"><i class="fas fa-bookmark"></i> Watchlist</a>
         </div>
     </div>
