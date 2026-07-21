@@ -7,119 +7,62 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <style>
-    /* Styling Header & Search */
-    .watchlist-header {
+    /* 1. SEARCH BAR CONSISTENCY (Sama dengan menu Countries) */
+    .search-card {
         background-color: #ffffff;
         border: 1px solid #cbd5e1;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         border-radius: 16px;
         padding: 20px;
         margin-bottom: 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 15px;
     }
 
-    /* Styling Select2 biar menyatu dengan tema */
+    /* 2. SELECT2 CONSISTENCY */
     .select2-container .select2-selection--single {
-        height: 45px !important;
+        height: 48px !important;
         border-radius: 10px !important;
         border: 1px solid #cbd5e1 !important;
         display: flex;
         align-items: center;
+        font-size: 16px;
         font-weight: bold;
-        color: #1e293b;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 43px !important;
+        height: 46px !important;
     }
 
-    /* Kartu Negara Favorit */
+    /* 3. WATCHLIST CARD CONSISTENCY */
     .watch-card {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
         border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         padding: 20px;
         height: 100%;
         position: relative;
-        transition: all 0.3s ease;
+        transition: transform 0.2s;
     }
-    .watch-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        border-color: #cbd5e1;
-    }
+    .watch-card:hover { transform: translateY(-3px); }
+
+    .watch-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 2px; padding-right: 40px; }
+    .watch-iso { font-size: 13px; color: #64748b; font-weight: 700; margin-bottom: 15px; }
 
     /* Tombol Hapus */
     .btn-remove {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: #fef2f2;
-        color: #ef4444;
-        border: none;
-        width: 35px;
-        height: 35px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+        position: absolute; top: 15px; right: 15px;
+        background: #fee2e2; color: #ef4444; border: none;
+        width: 35px; height: 35px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
         transition: 0.2s;
     }
-    .btn-remove:hover {
-        background: #ef4444;
-        color: #ffffff;
-    }
+    .btn-remove:hover { background: #ef4444; color: #fff; }
 
-    /* Bagian Header Kartu */
-    .watch-title {
-        font-size: 18px;
-        font-weight: 800;
-        color: #0f172a;
-        margin-bottom: 2px;
-        padding-right: 40px; /* Space untuk tombol hapus */
-    }
-    .watch-iso {
-        font-size: 12px;
-        color: #64748b;
-        font-weight: 700;
-        letter-spacing: 1px;
-        margin-bottom: 20px;
-    }
-
-    /* Grid Metrik Mini */
-    .mini-metrics {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-    }
-    .mini-metric-item {
-        background: #f8fafc;
-        padding: 12px;
-        border-radius: 10px;
-        border: 1px solid #f1f5f9;
-    }
-    .mini-metric-label {
-        font-size: 11px;
-        color: #64748b;
-        text-transform: uppercase;
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-    .mini-metric-val {
-        font-size: 14px;
-        color: #1e293b;
-        font-weight: 800;
-    }
-    .mini-icon {
-        margin-right: 6px;
-        color: #94a3b8;
-    }
-
+    /* Metrik mini dalam kartu */
+    .mini-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric-item { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #f1f5f9; }
+    .metric-label { font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 3px; }
+    .metric-val { font-size: 13px; color: #1e293b; font-weight: 800; }
+    
     /* Pesan Kosong */
     .empty-state {
         text-align: center;
@@ -129,20 +72,15 @@
         border: 2px dashed #cbd5e1;
         color: #64748b;
     }
-    .empty-state i {
-        font-size: 48px;
-        color: #cbd5e1;
-        margin-bottom: 15px;
-    }
+    .empty-state i { font-size: 48px; color: #cbd5e1; margin-bottom: 15px; }
 </style>
 
-<!-- HEADER & TAMBAH NEGARA -->
-<div class="watchlist-header">
-    <div>
-        <h5 class="fw-bold mb-1"><i class="fas fa-bookmark text-primary me-2"></i> Watchlist Monitoring</h5>
-        <span class="text-muted" style="font-size: 13px;">Pantau metrik utama dari negara-negara pilihan Anda secara real-time.</span>
-    </div>
-    <div style="width: 100%; max-width: 350px; display: flex; gap: 10px;">
+<!-- HEADER & SEARCH -->
+<div class="search-card">
+    <label class="form-label text-muted fw-bold text-uppercase mb-3" style="font-size: 13px; letter-spacing: 1px;">
+        <i class="fas fa-bookmark me-2 text-primary"></i> Watchlist Monitoring
+    </label>
+    <div style="display: flex; gap: 10px; max-width: 600px;">
         <select id="countrySelect" class="form-select" style="width: 100%;">
             <option value="">Memuat data...</option>
         </select>
@@ -174,23 +112,32 @@
     let localDBCountries = []; 
     let mledozeData = [];
     
-    // Inisialisasi Array Watchlist dari LocalStorage
-    let myWatchlist = JSON.parse(localStorage.getItem('supplyChainWatchlist')) || [];
+    // Inisialisasi Array Watchlist (Kosong di awal, akan diisi dari Database)
+    let myWatchlist = [];
+    
+    // Token CSRF untuk keamanan request POST Laravel
+    const csrfToken = '{{ csrf_token() }}';
 
     // 1. TARIK DATA AWAL
     async function fetchAllData() {
         try {
+            // A. Tarik database lokal
             const dbRes = await fetch('/api/countries-data');
             localDBCountries = await dbRes.json();
 
+            // B. Tarik data Mledoze (koordinat cuaca)
             const mlRes = await fetch('https://raw.githubusercontent.com/mledoze/countries/master/countries.json');
             mledozeData = await mlRes.json();
+            
+            // C. Tarik Watchlist dari Tabel Database (Backend API)
+            const wlRes = await fetch('/api/watchlist');
+            myWatchlist = await wlRes.json(); 
             
             // Urutkan Abjad
             localDBCountries.sort((a, b) => a.name.localeCompare(b.name));
             
             populateDropdown();
-            renderWatchlist(); // Tampilkan yang sudah di-save
+            renderWatchlist(); 
         } catch (error) {
             console.error("Gagal memuat data:", error);
         }
@@ -207,8 +154,8 @@
         $('#countrySelect').select2({ placeholder: "Cari & Tambah Negara..." });
     }
 
-    // 3. TAMBAH KE WATCHLIST
-    function addToWatchlist() {
+    // 3. TAMBAH KE WATCHLIST (DATABASE)
+    async function addToWatchlist() {
         const code = $('#countrySelect').val();
         if(!code) return alert('Silakan pilih negara terlebih dahulu!');
         
@@ -216,26 +163,48 @@
             return alert('Negara ini sudah ada di dalam Watchlist Anda.');
         }
 
+        // A. Langsung tampilkan di UI (Optimistic Update)
         myWatchlist.push(code);
-        saveAndRender();
-        
-        // Reset dropdown setelah ditambah
-        $('#countrySelect').val('').trigger('change');
-    }
-
-    // 4. HAPUS DARI WATCHLIST
-    function removeFromWatchlist(code) {
-        myWatchlist = myWatchlist.filter(item => item !== code);
-        saveAndRender();
-    }
-
-    // 5. SIMPAN KE LOCALSTORAGE & RENDER ULANG
-    function saveAndRender() {
-        localStorage.setItem('supplyChainWatchlist', JSON.stringify(myWatchlist));
         renderWatchlist();
+        $('#countrySelect').val('').trigger('change'); // Reset dropdown
+        
+        // B. Kirim data ke Database via API
+        try {
+            await fetch('/api/watchlist/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ code: code })
+            });
+        } catch (error) {
+            console.error("Gagal menyimpan ke database", error);
+        }
     }
 
-    // 6. RENDER KARTU WATCHLIST KE LAYAR
+    // 4. HAPUS DARI WATCHLIST (DATABASE)
+    async function removeFromWatchlist(code) {
+        // A. Langsung hapus dari UI
+        myWatchlist = myWatchlist.filter(item => item !== code);
+        renderWatchlist();
+
+        // B. Hapus dari Database via API
+        try {
+            await fetch('/api/watchlist/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ code: code })
+            });
+        } catch (error) {
+            console.error("Gagal menghapus dari database", error);
+        }
+    }
+
+    // 5. RENDER KARTU WATCHLIST KE LAYAR
     function renderWatchlist() {
         const container = document.getElementById('watchlistContainer');
         const emptyState = document.getElementById('emptyState');
@@ -259,7 +228,7 @@
             const lat = extraData.latlng ? extraData.latlng[0] : 0;
             const lng = extraData.latlng ? extraData.latlng[1] : 0;
 
-            // Template HTML untuk setiap kartu
+            // Template HTML Kartu
             const cardHTML = `
                 <div class="col-md-6 col-lg-4" id="card-${code}">
                     <div class="watch-card">
@@ -271,21 +240,21 @@
                         <div class="watch-iso">${code}</div>
 
                         <div class="mini-metrics">
-                            <div class="mini-metric-item">
-                                <div class="mini-metric-label"><i class="fas fa-chart-pie mini-icon text-primary"></i> GDP</div>
-                                <div class="mini-metric-val" id="wl-gdp-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
+                            <div class="metric-item">
+                                <div class="metric-label"><i class="fas fa-chart-pie me-1 text-primary"></i> GDP</div>
+                                <div class="metric-val" id="wl-gdp-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
                             </div>
-                            <div class="mini-metric-item">
-                                <div class="mini-metric-label"><i class="fas fa-arrow-trend-up mini-icon text-danger"></i> Inflasi</div>
-                                <div class="mini-metric-val" id="wl-inf-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
+                            <div class="metric-item">
+                                <div class="metric-label"><i class="fas fa-arrow-trend-up me-1 text-danger"></i> Inflasi</div>
+                                <div class="metric-val" id="wl-inf-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
                             </div>
-                            <div class="mini-metric-item">
-                                <div class="mini-metric-label"><i class="fas fa-money-bill-wave mini-icon text-success"></i> Kurs</div>
-                                <div class="mini-metric-val" id="wl-cur-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
+                            <div class="metric-item">
+                                <div class="metric-label"><i class="fas fa-money-bill-wave me-1 text-success"></i> Kurs</div>
+                                <div class="metric-val" id="wl-cur-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
                             </div>
-                            <div class="mini-metric-item">
-                                <div class="mini-metric-label"><i class="fas fa-cloud-sun mini-icon text-warning"></i> Cuaca</div>
-                                <div class="mini-metric-val" id="wl-wea-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
+                            <div class="metric-item">
+                                <div class="metric-label"><i class="fas fa-cloud-sun me-1 text-warning"></i> Cuaca</div>
+                                <div class="metric-val" id="wl-wea-${code}"><i class="fas fa-spinner fa-spin text-muted"></i></div>
                             </div>
                         </div>
                     </div>
@@ -298,7 +267,7 @@
         });
     }
 
-    // 7. FETCH DATA LIVE UNTUK SETIAP KARTU (Sama seperti dashboard)
+    // 6. FETCH DATA LIVE UNTUK SETIAP KARTU
     async function fetchLiveCardData(code, lat, lng, currency) {
         // A. Cuaca (Open-Meteo)
         if(lat !== 0 && lng !== 0) {
