@@ -3,8 +3,10 @@
 @section('page_title', 'Port Location')
 
 @section('content')
-<!-- Memanggil CSS Leaflet -->
+<!-- Memanggil CSS Leaflet & Plugin MarkerCluster -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 
 <style>
     /* Desain Card Konsisten */
@@ -33,15 +35,23 @@
     .port-popup-title { font-weight: 800; color: #1e293b; font-size: 16px; margin-bottom: 5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
     .port-popup-info { font-size: 13px; color: #475569; margin-bottom: 3px; }
     
-    /* Desain Badge Total (Diperbarui Warnanya) */
+    /* Desain Badge Total */
     .total-badge {
-        background-color: #0f172a; /* Warna Dark Navy senada dengan Sidebar */
+        background-color: #0f172a;
         color: #ffffff;
         font-size: 13px;
         font-weight: 700;
         letter-spacing: 0.5px;
-        box-shadow: 0 4px 10px rgba(30, 41, 59, 0.2); /* Shadow kalem */
+        box-shadow: 0 4px 10px rgba(30, 41, 59, 0.2);
     }
+
+    /* Customisasi Warna Cluster (Opsional, agar senada tema) */
+    .marker-cluster-small { background-color: rgba(79, 70, 229, 0.6); }
+    .marker-cluster-small div { background-color: rgba(79, 70, 229, 0.8); color: white; font-weight: bold; }
+    .marker-cluster-medium { background-color: rgba(2, 132, 199, 0.6); }
+    .marker-cluster-medium div { background-color: rgba(2, 132, 199, 0.8); color: white; font-weight: bold; }
+    .marker-cluster-large { background-color: rgba(15, 23, 42, 0.6); }
+    .marker-cluster-large div { background-color: rgba(15, 23, 42, 0.8); color: white; font-weight: bold; }
 </style>
 
 <!-- HEADER & FILTER PENCARIAN -->
@@ -53,7 +63,6 @@
             <i class="fas fa-magnifying-glass-location me-2 text-primary"></i> Pencarian Pelabuhan Global
         </label>
         
-        <!-- BADGE TOTAL PELABUHAN (Hapus bg-primary bawaan Bootstrap) -->
         <span class="badge rounded-pill px-3 py-2 total-badge" id="totalPortsBadge">
             <i class="fas fa-ship me-1"></i> Menghitung...
         </span>
@@ -90,6 +99,8 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Plugin MarkerCluster JS -->
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
 <script>
     const map = L.map('map').setView([20.0, 0.0], 2);
@@ -97,7 +108,14 @@
         attribution: '&copy; OpenStreetMap contributors', maxZoom: 18
     }).addTo(map);
 
-    let markerLayerGroup = L.layerGroup().addTo(map);
+    // MENGGUNAKAN MARKER CLUSTER GROUP (DENGAN SETTINGAN SKALA BENUA)
+    let markerLayerGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        maxClusterRadius: 150, // Radius diperbesar drastis agar menyedot sebesar skala Benua
+        disableClusteringAtZoom: 6, // Begitu di-zoom in (scroll maju), cluster langsung pecah semua biar detailnya kelihatan
+        spiderfyOnMaxZoom: true // Mencegah marker bertumpuk mati
+    }).addTo(map);
+    
     const allPortsData = @json($ports);
     let markerReferences = {}; 
 
@@ -115,7 +133,6 @@
     // 2. Isi Dropdown Pelabuhan
     function populatePorts(filterCountry = "") {
         const portSelect = document.getElementById('searchPort');
-        
         portSelect.innerHTML = '<option value="">Semua Pelabuhan...</option>';
 
         let filteredData = allPortsData;
@@ -136,7 +153,7 @@
     function renderMarkers(portsArray, autoPopupPortName = null) {
         markerLayerGroup.clearLayers();
         markerReferences = {}; 
-        const markers = [];
+        const markers = []; // Tampung marker di array dulu agar render lebih cepat
 
         // UPDATE BADGE TOTAL PELABUHAN
         const totalBadge = document.getElementById('totalPortsBadge');
@@ -153,21 +170,25 @@
 
             const marker = L.marker([port.latitude, port.longitude]);
             marker.bindPopup(popupHTML); 
-            markerLayerGroup.addLayer(marker);
-            markers.push(marker);
+            
+            markers.push(marker); // Masukkan ke array sementara
             markerReferences[port.name.toLowerCase()] = marker;
         });
 
         if (markers.length > 0) {
-            const group = new L.featureGroup(markers);
+            // Render semua marker ke dalam cluster sekaligus (jauh lebih ringan)
+            markerLayerGroup.addLayers(markers);
+
             if (autoPopupPortName && markers.length === 1) {
-                map.setView(markers[0].getLatLng(), 12); 
+                // Zoom agak dalam supaya cluster pecah menjadi titik marker aslinya
+                map.setView(markers[0].getLatLng(), 14); 
                 setTimeout(() => { 
                     if(markerReferences[autoPopupPortName.toLowerCase()]) {
                         markerReferences[autoPopupPortName.toLowerCase()].openPopup(); 
                     }
-                }, 400);
+                }, 500);
             } else {
+                const group = new L.featureGroup(markers);
                 map.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 6 });
             }
         }
